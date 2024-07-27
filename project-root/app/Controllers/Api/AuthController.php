@@ -10,6 +10,45 @@ class AuthController extends ResourceController
 {
     public function login()
     {
+        $rules = [
+            'email' => 'required|valid_email',
+            'password' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+            $response = [
+                'status' => 'false',
+                'message' => 'Validation Error',
+                'errors' => $errors
+            ];
+        } else {
+            $validatedData = $this->validator->getValidated();
+
+            $authentication = auth()->attempt($validatedData);
+
+            if (!$authentication->isOK()) {
+                $response = [
+                    'status' => 'false',
+                    'message' => 'Incorrect Credentials',
+                ];
+            } else {
+                $user = model(UserModel::class)->findById(auth()->id());
+
+                $token = $user->generateAccessToken('access_token');
+                $auth_token = $token->raw_token;
+
+                $response = [
+                    'status' => true,
+                    'message' => 'User Login Successfully',
+                    'data' => [
+                        'token' => $auth_token
+                    ]
+                ];
+            }
+        }
+
+        return $this->respondCreated($response);
     }
 
     public function register()
@@ -28,21 +67,20 @@ class AuthController extends ResourceController
                 'message' => 'Validation Failed',
                 'errors' => $errors
             ];
-            exit;
+        } else {
+            $user = model(UserModel::class);
+
+            $validatedData = $this->validator->getValidated();
+
+            $userEntity = new User($validatedData);
+
+            if ($user->save($userEntity)) {
+                $response = [
+                    'status' => true,
+                    'message' => 'Success',
+                ];
+            };
         }
-
-        $user = model(UserModel::class);
-
-        $validatedData = $this->validator->getValidated();
-
-        $userEntity = new User($validatedData);
-
-        if ($user->save($userEntity)) {
-            $response = [
-                'status' => true,
-                'message' => 'Success',
-            ];
-        };
 
         return $this->respondCreated($response);
     }
