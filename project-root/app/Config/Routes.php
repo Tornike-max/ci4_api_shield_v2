@@ -19,7 +19,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->get('profile', 'AuthController::profile', ['filter' => 'apiAuth']);
     $routes->get('logout', 'AuthController::logout', ['filter' => 'apiAuth']);
 
-    $routes->post('add-project', 'ProjectController::addProject');
+    $routes->post('add-project', 'ProjectController::addProject', ['filter' => 'apiAuth']);
     $routes->get('list-projects', 'ProjectController::listProjects');
     $routes->get('delete-project(:num)', 'ProjectController::deleteProject/$1');
 });
