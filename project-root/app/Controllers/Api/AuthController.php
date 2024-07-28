@@ -10,6 +10,10 @@ class AuthController extends ResourceController
 {
     public function login()
     {
+        if (auth()->loggedIn()) {
+            auth()->logout();
+        }
+
         $rules = [
             'email' => 'required|valid_email',
             'password' => 'required'
@@ -118,5 +122,25 @@ class AuthController extends ResourceController
 
     public function logout()
     {
+        $user = auth()->user();
+        if (isset($user)) {
+            $user->revokeAllAccessTokens();
+            auth()->logout();
+            $response = [
+                'status' => true,
+                'message' => 'User Logged Out',
+                'data' => []
+            ];
+        } else {
+            $response = [
+                'status' => false,
+                'message' => 'Failed to log out',
+                'data' => []
+            ];
+        }
+
+
+
+        return $this->respondCreated($response);
     }
 }
