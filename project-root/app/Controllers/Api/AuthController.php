@@ -85,8 +85,35 @@ class AuthController extends ResourceController
         return $this->respondCreated($response);
     }
 
+    public function invalidAccess()
+    {
+        return $this->respondCreated([
+            'status' => false,
+            'message' => 'You are not authorized to make this action'
+        ]);
+    }
+
     public function profile()
     {
+        $userId = auth()->id();
+
+        $userObject = model(UserModel::class)->findById($userId);
+
+        if (!isset($userObject)) {
+            $response = [
+                'status' => false,
+                'message' => '404-User Not Found!',
+                'data' => []
+            ];
+        } else {
+            $response = [
+                'status' => true,
+                'message' => 'Success',
+                'data' => $userObject,
+            ];
+        }
+
+        return $this->respondCreated($response);
     }
 
     public function logout()

@@ -11,9 +11,12 @@ service('auth')->routes($routes);
 
 //api
 $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes) {
+
+    $routes->get('invalid-access', 'AuthController::invalidAccess');
+
     $routes->post('register', 'AuthController::register');
     $routes->post('login', 'AuthController::login');
-    $routes->get('profile', 'AuthController::profile');
+    $routes->get('profile', 'AuthController::profile', ['filter' => 'apiAuth']);
     $routes->get('logout', 'AuthController::logout');
 
     $routes->post('add-project', 'ProjectController::addProject');
