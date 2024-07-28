@@ -42,9 +42,62 @@ class ProjectController extends ResourceController
 
     public function listProjects()
     {
+        $user_id = auth()->id();
+
+        $projectObject = model(ProjectModel::class);
+
+        $projects = $projectObject->where('user_id', $user_id)->findAll();
+
+        if (!isset($projects)) {
+            $response = [
+                'status' => false,
+                'message' => 'No projects Available',
+                'data' => []
+            ];
+        } else {
+            $response = [
+                'status' => true,
+                'message' => 'success',
+                'data' => $projects
+            ];
+        }
+
+        return $this->respondCreated($response);
     }
 
     public function deleteProject($project_id)
     {
+        if (empty($project_id)) {
+            $response = [
+                'status' => false,
+                'message' => 'Project id is required',
+                'data' => []
+            ];
+        }
+
+        $user_id = auth()->id();
+
+        $projectObject = model(ProjectModel::class);
+
+        $project = $projectObject->where([
+            'id' => $project_id,
+            'user_id' => $user_id
+        ])->first();
+
+        if ($project) {
+            $projectObject->delete($project_id);
+            $response = [
+                'status' => true,
+                'message' => 'Project deleted',
+                'data' => []
+            ];
+        } else {
+            $response = [
+                'status' => false,
+                'message' => 'Project not found',
+                'data' => []
+            ];
+        }
+        return $this->respondCreated($response);
     }
 }
